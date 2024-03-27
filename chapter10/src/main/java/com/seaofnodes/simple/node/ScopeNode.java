@@ -2,6 +2,7 @@ package com.seaofnodes.simple.node;
 
 import com.seaofnodes.simple.IterPeeps;
 import com.seaofnodes.simple.type.Type;
+import com.seaofnodes.simple.type.TypeMem;
 
 import java.util.*;
 
@@ -17,6 +18,7 @@ public class ScopeNode extends Node {
      */
     public static final String CTRL = "$ctrl";
     public static final String ARG0 = "arg";
+    public static final String ALLMEM = TypeMem.ALLMEM_ALIAS.aliasName();
 
     /**
      * Names for every input edge

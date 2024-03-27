@@ -3,15 +3,16 @@ package com.seaofnodes.simple.node;
 import com.seaofnodes.simple.Parser;
 import com.seaofnodes.simple.type.Type;
 import com.seaofnodes.simple.type.TypeMemPtr;
+import com.seaofnodes.simple.type.TypeTuple;
 
 import java.util.BitSet;
 
-public class NewNode extends Node {
+public class NewNode extends MultiNode {
 
     TypeMemPtr _ptr;
 
-    public NewNode(TypeMemPtr ptr, Node ctrl) {
-        super(ctrl);
+    public NewNode(TypeMemPtr ptr, Node ctrl, Node mem) {
+        super(ctrl, mem);
         this._ptr = ptr;
     }
 
@@ -34,7 +35,7 @@ public class NewNode extends Node {
 
     @Override
     public Type compute() {
-        return _ptr;
+        return TypeTuple.make(new Type[] { Type.XCONTROL, in(1)._type, _ptr });
     }
 
     @Override

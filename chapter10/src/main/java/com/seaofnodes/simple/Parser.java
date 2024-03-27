@@ -80,7 +80,7 @@ public class Parser {
         _lexer = new Lexer(source);
         _scope = new ScopeNode();
         _continueScope = _breakScope = null;
-        START = new StartNode(new Type[]{ Type.CONTROL, arg });
+        START = new StartNode(new Type[]{ Type.CONTROL, arg, TypeMem.ALLMEM });
         STOP = new StopNode(source);
     }
 
@@ -107,6 +107,7 @@ public class Parser {
         _scope.push();
         _scope.define(ScopeNode.CTRL, new ProjNode(START, 0, ScopeNode.CTRL).peephole());
         _scope.define(ScopeNode.ARG0, new ProjNode(START, 1, ScopeNode.ARG0).peephole());
+        _scope.define(ScopeNode.ALLMEM, new ProjNode(START, 2, ScopeNode.ALLMEM).peephole());
         parseBlock();
         _scope.pop();
         _xScopes.pop();
@@ -455,7 +456,8 @@ public class Parser {
 
     private void typeCheck(TypeStruct structType, Node expr, String name) {
         if (structType != null) {
-            if (expr instanceof NewNode newNode) {
+            if (expr instanceof ProjNode proj &&
+                 proj.in(0) instanceof NewNode newNode) {
                 if (!newNode.ptr().structType().equals(structType))
                     throw errorSyntax("new expression is not compatible with the variable " + name);
             }
@@ -599,12 +601,17 @@ public class Parser {
      * Return a NewNode but also generate instructions to initialize it.
      */
     private Node newStruct(TypeStruct structType) {
-        Node n = new NewNode(new TypeMemPtr(structType).intern(), ctrl()).peephole();
+        NewNode n = (NewNode) new NewNode(new TypeMemPtr(structType).intern(), ctrl(), _scope.lookup(ScopeNode.ALLMEM)).peephole().keep();
+        // Setup projection nodes
+        new ProjNode(n, 0, "ERROR" ).peephole();
+        _scope.update(ScopeNode.ALLMEM, new ProjNode(n, 1, "mem" ).peephole());
+        Node ptr = new ProjNode(n, 2, "ptr").peephole();
         Node initValue = new ConstantNode(TypeInteger.constant(0)).peephole();
         for (TypeField field: structType.fields()) {
             _scope.update(field.aliasName(), new StoreNode(field, _scope.lookup(field.aliasName()), n, initValue).peephole());
         }
-        return n;
+        n.unkeep();
+        return ptr;
     }
 
     /**

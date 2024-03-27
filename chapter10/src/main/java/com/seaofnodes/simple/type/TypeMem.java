@@ -35,4 +35,17 @@ public class TypeMem extends Type {
 
     @Override
     public StringBuilder _print(StringBuilder sb) { return sb.append("Mem#").append(_aliasSource.alias()); }
+
+
+    // We set 2 as the ALLMEM alias because it can then occupy 2 slot in START
+    // and field aliases start from 3.
+    public static final AliasSource ALLMEM_ALIAS = new AliasSource() {
+        @Override
+        public int alias() { return 2; }
+
+        @Override
+        public String aliasName() { return "$mem"; }
+    };
+
+    public static final TypeMem ALLMEM = new TypeMem(ALLMEM_ALIAS).intern();
 }

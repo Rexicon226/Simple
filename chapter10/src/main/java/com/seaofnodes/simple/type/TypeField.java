@@ -8,10 +8,11 @@ import java.util.Objects;
 public class TypeField implements AliasSource {
 
     /**
-     * Alias ID generator - we start at 2 because START uses 0 and 1 slots,
-     * by starting at 2, our alias ID is nicely mapped to a slot in Start.
+     * Alias ID generator - we start at 2 because START uses 0-2 slots,
+     * by starting at 3, our alias ID is nicely mapped to a slot in Start.
      */
-    static int _ALIAS_ID = 2;
+    static final int _RESET_ALIAS_ID = 3;
+    static int _ALIAS_ID = _RESET_ALIAS_ID;
 
     /**
      * Struct type that owns this field
@@ -41,7 +42,7 @@ public class TypeField implements AliasSource {
     @Override
     public int alias() { return _alias; }
 
-    public static void reset() { _ALIAS_ID = 2; }
+    public static void reset() { _ALIAS_ID = _RESET_ALIAS_ID; }
 
     @Override
     public boolean equals(Object o) {
